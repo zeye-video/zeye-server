@@ -18,6 +18,7 @@ const url = require('url');
 const protoo = require('protoo-server');
 const mediasoup = require('mediasoup');
 const express = require('express');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const { AwaitQueue } = require('awaitqueue');
 const Logger = require('./lib/Logger');
@@ -135,7 +136,12 @@ async function createExpressApp()
 	logger.info('creating Express app...');
 
 	expressApp = express();
+	var corsOptions = {
+		origin: 'https://zeye.ru',
+		optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+	}
 
+	expressApp.use(cors(corsOptions))
 	expressApp.use(bodyParser.json());
 
 	expressApp.get(
