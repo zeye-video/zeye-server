@@ -25,6 +25,8 @@ const Logger = require('./lib/Logger');
 const Room = require('./lib/Room');
 const interactiveServer = require('./lib/interactiveServer');
 const interactiveClient = require('./lib/interactiveClient');
+const getDatetime = require('./lib/datetime')
+const randomStr = require('./lib/randomStr')
 
 const logger = new Logger();
 
@@ -137,12 +139,30 @@ async function createExpressApp()
 
 	expressApp = express();
 	var corsOptions = {
-		origin: 'https://zeye.ru',
+		origin: ['https://zeye.ru','http://localhost:8080'],
+		credentials: true,
 		optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 	}
 
 	expressApp.use(cors(corsOptions))
 	expressApp.use(bodyParser.json());
+
+	expressApp.post('/authEndpoint', async (req, res) => {
+		const knex = require('knex')({
+			client: process.env.DB_CLIENT,
+			connection: config.authConnection
+		});
+
+		const token = randomStr(60)
+
+		await knex(process.env.DB_TABLE).insert({
+			ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+			token: token,
+			created_at: getDatetime()
+		})
+
+		res.status(200).json(token.toString())
+	})
 
 	expressApp.get(
 		'/getUsage', (req, res) =>
@@ -422,15 +442,27 @@ async function runProtooWebSocketServer()
 		});
 
 	// Handle connections from clients.
-	protooWebSocketServer.on('connectionrequest', (info, accept, reject) =>
+	protooWebSocketServer.on('connectionrequest', async (info, accept, reject) =>
 	{
 		// The client indicates the roomId and peerId in the URL query.
 		const u = url.parse(info.request.url, true);
 		const roomId = u.query['roomId'];
 		const peerId = u.query['peerId'];
 
-		if (!roomId || !peerId)
-		{
+		if (config.checkAuth === 'true') {
+			const authToken = u.query['authToken'];
+
+			const driver = new (require('./auth/drivers/' + config.authDriver))
+
+			const clientIp = info.request.connection.remoteAddress
+
+			if (! await driver.check(authToken, clientIp)) {
+				reject(401, 'Unauthenticated');
+				return;
+			}
+		}
+
+		if (!roomId || !peerId) {
 			reject(400, 'Connection request without roomId and/or peerId');
 
 			return;

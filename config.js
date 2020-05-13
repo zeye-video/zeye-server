@@ -1,19 +1,22 @@
-/**
- * IMPORTANT (PLEASE READ THIS):
- *
- * This is not the "configuration file" of mediasoup. This is the configuration
- * file of the mediasoup-demo app. mediasoup itself is a server-side library, it
- * does not read any "configuration file". Instead it exposes an API. This demo
- * application just reads settings from this file (once copied to config.js) and
- * calls the mediasoup API with those settings when appropriate.
- */
-
 const os = require('os');
 
 module.exports =
 {
 	// Listening hostname (just for `gulp live` task).
 	domain : process.env.DOMAIN || 'localhost',
+
+	// Is auth challenge enabled
+	checkAuth : process.env.CHECK_AUTH || false,
+	// Auth challenge driver
+	authDriver : process.env.AUTH_DRIVER || 'knex',
+	// Mysql connection settings, if you want pg or sqlite see http://knexjs.org/#Installation-client
+	authConnection : {
+		host : process.env.DB_HOST,
+		user : process.env.DB_USER,
+		password : process.env.DB_PASSWORD,
+		database : process.env.DB_DATABASE
+	},
+
 	// Signaling settings (protoo WebSocket server and HTTP API server).
 	https  :
 	{
