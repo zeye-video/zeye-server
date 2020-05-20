@@ -46,22 +46,23 @@ $ npm install mssql
 #### 3.2 http
 Edit line `AXIOS_ENDPOINT=` to match your backend endpoint
 
-`{authToken}` and `{clientIp}` are mandatory in url, because they will be replaced with actual client\`s token and ip
+`{authToken}`, `{roomId}` and `{clientIp}` are mandatory in url, because they will be replaced with actual client\`s token, ip and desired room
 
 Example:
-`AXIOS_ENDPOINT=https://zeye.loc/api/checkWssToken?authToken={authToken}&clientIp={clientIp}`
+`AXIOS_ENDPOINT=https://zeye.loc/api/checkWssToken?authToken={authToken}&clientIp={clientIp}&roomId={roomId}`
 
 Backend example (Laravel):
 ```php
 // somewhere in your controller
 
-// This is related only to https://github.com/stasoft91/vue-zeye-client 
-// It will be called from there in ZeyeClient.js/join method
 public function createWssToken (Request $request) {
+    // check $request->password or Auth::user() here, abort(401) on fail
+
     $token = Str::random(50)
  
     DB::('zeye_wss_tokens')->insert([
         'token' => $token,
+        'room' => $request->room,
         'ip' => $request->ip(),
         'created_at' => now()
     ]);
@@ -72,9 +73,11 @@ public function createWssToken (Request $request) {
 public function checkWssToken (Request $request) {
     $token = $request->get('authToken')
     $ip = $request->get('clientIp')
+    $room = $request->get('roomId')
  
     $tokenEntry = DB::('zeye_wss_tokens')
         ->where('token', $token)
+        ->where('room', $room)
         ->where('ip', $ip);
 
     $result = $tokenEntry->count() > 0

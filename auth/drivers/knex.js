@@ -8,15 +8,17 @@ class KnexDriver {
         });
     }
 
-    async check(authToken, clientIp) {
+    async check(roomId, authToken, clientIp) {
         const isAuthenticated = (await this.knex(process.env.DB_TABLE).where({
             token: authToken,
+            room: roomId,
             ip: clientIp
         })).length
 
         if (isAuthenticated) {
             this.knex(process.env.DB_TABLE).where({
                 token: authToken,
+                room: roomId,
                 ip: clientIp
             }).del()
         }

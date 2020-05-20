@@ -157,6 +157,7 @@ async function createExpressApp()
 
 		await knex(process.env.DB_TABLE).insert({
 			ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+			room: req.roomId,
 			token: token,
 			created_at: getDatetime()
 		})
@@ -449,6 +450,12 @@ async function runProtooWebSocketServer()
 		const roomId = u.query['roomId'];
 		const peerId = u.query['peerId'];
 
+		if (!roomId || !peerId) {
+			reject(400, 'Connection request without roomId and/or peerId');
+
+			return;
+		}
+
 		if (config.checkAuth === 'true') {
 			const authToken = u.query['authToken'];
 
@@ -456,17 +463,12 @@ async function runProtooWebSocketServer()
 
 			const clientIp = info.request.connection.remoteAddress
 
-			if (! await driver.check(authToken, clientIp)) {
+			if (! await driver.check(roomId, authToken, clientIp)) {
 				reject(401, 'Unauthenticated');
 				return;
 			}
 		}
 
-		if (!roomId || !peerId) {
-			reject(400, 'Connection request without roomId and/or peerId');
-
-			return;
-		}
 
 		logger.info(
 			'protoo connection request [roomId:%s, peerId:%s, address:%s, origin:%s]',
