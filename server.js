@@ -139,7 +139,7 @@ async function createExpressApp()
 
 	expressApp = express();
 	var corsOptions = {
-		origin: [process.env.AUTH_ENDPOINT_ORIGIN], // don`t forget to put yours
+		origin: [process.env.AUTH_ENDPOINT_ORIGIN],
 		credentials: true,
 		optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 	}
