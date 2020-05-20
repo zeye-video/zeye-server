@@ -9,6 +9,7 @@ class KnexDriver {
     }
 
     async check(roomId, authToken, clientIp) {
+        console.debug('Trying knex check', roomId, authToken , clientIp)
         const isAuthenticated = (await this.knex(process.env.DB_TABLE).where({
             token: authToken,
             room: roomId,
