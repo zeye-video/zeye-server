@@ -147,6 +147,7 @@ async function createExpressApp()
 	expressApp.use(cors(corsOptions))
 	expressApp.use(bodyParser.json());
 
+	// THIS IS JUST AN EXAMPLE
 	expressApp.post('/authEndpoint', async (req, res) => {
 		const knex = require('knex')({
 			client: process.env.DB_CLIENT,
@@ -157,7 +158,7 @@ async function createExpressApp()
 
 		await knex(process.env.DB_TABLE).insert({
 			ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
-			room: req.roomId,
+			room: req.body.roomId,
 			token: token,
 			created_at: getDatetime()
 		})
