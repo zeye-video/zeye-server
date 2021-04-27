@@ -29,7 +29,7 @@
     "mysql": "^2.18.1",
     "pidusage": "^2.0.18",
     "protoo-server": "^4.0.4",
-    "redis": "^3.0.2",
+    "redis": "^3.1.1",
     "sanitize-html": "^1.24.0",
     "sctp": "^0.0.19"
   },
