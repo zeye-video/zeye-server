@@ -25,7 +25,7 @@
     "is-image-url": "^1.1.8",
     "knex": "^0.21.1",
     "mediasoup": "github:versatica/mediasoup#v3",
-    "moment": "^2.26.0",
+    "moment": "^2.29.4",
     "mysql": "^2.18.1",
     "pidusage": "^2.0.18",
     "protoo-server": "^4.0.4",
